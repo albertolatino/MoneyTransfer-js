@@ -1,0 +1,118 @@
+package it.polimi.tiw.dao;
+
+import it.polimi.tiw.beans.Transaction;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TransactionDAO {
+    private Connection connection;
+
+    public TransactionDAO(Connection connection) {
+        this.connection = connection;
+    }
+
+
+    public List<Transaction> findTransactionsByAccount(int accountId) throws SQLException {
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        String query = "SELECT * from transaction where originId = ? OR destinationId = ? ORDER BY date DESC";
+        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
+            pstatement.setInt(1, accountId);
+            pstatement.setInt(2, accountId);
+            try (ResultSet result = pstatement.executeQuery()) {
+                while (result.next()) {
+                    Transaction transaction = new Transaction();//Create java Bean
+                    transaction.setTransactionId(result.getInt("transactionId"));
+                    transaction.setDate(result.getDate("date"));
+                    transaction.setAmount((result.getDouble("amount")));
+                    transaction.setOriginId(result.getInt("originId"));
+                    transaction.setDestinationId(result.getInt("destinationId"));
+                    transaction.setDescription(result.getString("description"));
+                    transactions.add(transaction);
+                }
+            }
+        }
+        return transactions;
+    }
+
+
+    /**
+     * Changes account balance.
+     *
+     * @param accountId Account to be changed.
+     * @param balance   Total balance in account.
+     * @throws SQLException
+     */
+    public void changeAccountBalance(int accountId, double balance) throws SQLException {
+
+        String query = "UPDATE account SET balance = ? WHERE accountId = ? ";
+        try (PreparedStatement pstatement = connection.prepareStatement(query);) {
+            pstatement.setDouble(1, balance);
+            pstatement.setInt(2, accountId);
+            pstatement.executeUpdate();
+        }
+    }
+
+
+    public void createTransaction(int originId, int destinationId, double amount, String description)
+            throws SQLException {
+
+        String transactionQuery = "INSERT into transaction (transactionId, date, amount, originId, destinationId, description) VALUES(NULL, NOW(), ?, ?, ?, ?)";
+        String originBalanceQuery = "UPDATE account SET balance = balance - ? WHERE accountId = ? AND balance >= 0";
+        String destinationBalanceQuery = "UPDATE account SET balance = balance + ? WHERE accountId = ? AND balance >= 0";
+
+
+        try (PreparedStatement insertTransaction = connection.prepareStatement(transactionQuery);
+             PreparedStatement updateOriginBalance = connection.prepareStatement(originBalanceQuery);
+             PreparedStatement updateDestinationBalance = connection.prepareStatement(destinationBalanceQuery)) {
+
+            connection.setAutoCommit(false);
+
+            insertTransaction.setDouble(1, amount);
+            insertTransaction.setInt(2, originId);
+            insertTransaction.setInt(3, destinationId);
+            insertTransaction.setString(4, description);
+
+            updateOriginBalance.setDouble(1, amount);
+            updateOriginBalance.setInt(2, originId);
+
+            updateDestinationBalance.setDouble(1, amount);
+            updateDestinationBalance.setInt(2, destinationId);
+
+            updateOriginBalance.executeUpdate();
+            updateDestinationBalance.executeUpdate();
+            insertTransaction.executeUpdate();
+
+            connection.commit();
+        }
+    }
+
+    /**
+     * Checks that username owns destination account.
+     *
+     * @param username
+     * @param accountId
+     * @return
+     * @throws SQLException
+     */
+    public boolean checkAccountOwner(String username, int accountId) throws SQLException {
+        String query = "SELECT * FROM user JOIN account ON user.userId = account.userId WHERE user.username = ? AND account.accountId = ?";
+
+        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
+            pstatement.setString(1, username);
+            pstatement.setInt(2, accountId);
+
+            try (ResultSet result = pstatement.executeQuery()) {
+                return result.next();
+            }
+        }
+    }
+
+
+}

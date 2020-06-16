@@ -1,0 +1,5 @@
+.idea
+*.iml
+.DS_STORE
+out
+web/WEB-INF/lib
