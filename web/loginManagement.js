@@ -34,4 +34,8 @@
         }
     });
 
+    document.getElementById("registerLink").addEventListener('click', () => {
+        window.location.href = "register.html";
+    });
+
 })();

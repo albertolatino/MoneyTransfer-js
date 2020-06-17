@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-@WebServlet("/CheckLogin")
+@WebServlet("/RegisterUser")
 @MultipartConfig
 public class RegisterUser extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -32,9 +32,14 @@ public class RegisterUser extends HttpServlet {
             throws IOException {
         // obtain and escape params
         String username = null;
+        String name = null;
+        String surname = null;
         String email = null;
         String pwd = null;
+
         username = StringEscapeUtils.escapeJava(request.getParameter("username"));
+        name = StringEscapeUtils.escapeJava(request.getParameter("name"));
+        surname = StringEscapeUtils.escapeJava(request.getParameter("surname"));
         pwd = StringEscapeUtils.escapeJava(request.getParameter("pwd"));
         email = StringEscapeUtils.escapeJava(request.getParameter("email"));
         if (username == null || pwd == null || username.isEmpty() || pwd.isEmpty() || email.isEmpty()) {
@@ -49,12 +54,16 @@ public class RegisterUser extends HttpServlet {
 
             if (userDao.existingEmail(email)) {
                 response.getWriter().println("This email is already associated to an account");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //todo
             } else if (userDao.existingUsername(username)) {
                 response.getWriter().println("This username is already taken");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //todo
             } else {
-                userDao.registerUser(username, email, pwd);
+                userDao.registerUser(username, email, pwd, name, surname);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().println(username);
                 response.setStatus(HttpServletResponse.SC_OK);
-
             }
 
         } catch (SQLException e) {
@@ -63,6 +72,7 @@ public class RegisterUser extends HttpServlet {
         }
 
     }
+
 
     public void destroy() {
         try {

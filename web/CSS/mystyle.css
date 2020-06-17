@@ -9,3 +9,7 @@ th.sortable {
 .alertmessage{
 	color: red;
 }
+
+#successfulRegistration{
+	visibility: hidden;
+}

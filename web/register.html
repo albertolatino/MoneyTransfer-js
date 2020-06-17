@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <title>Registration</title>
     <script src="registration.js" charset="utf-8" defer></script>
+    <script src="utils.js" charset="utf-8" defer></script>
+    <link rel="stylesheet" type="text/css" media="all" href="CSS/mystyle.css"/>
 </head>
 <body>
 
@@ -11,13 +14,16 @@
 
 <form action="#">
     <fieldset>
+        Name: <input type="text" name="name" required> <br>
+        Surname: <input type="text" name="surname" required> <br>
         Username: <input type="text" name="username" required> <br>
         Email: <input type="text" name="email" required> <br>
         Password: <input type="password" name="pwd" required><br>
         Repeat Password: <input type="password" name="rptpwd" required><br>
 
-        <input id="registrationbutton" type="button" value="Register">
+        <input id="registrationButton" type="button" value="Register">
         <p id="errormessage"></p>
+        <h3 id="successfulRegistration">Successful Registration! <a id="loginLink" href="#">Login</a></h3>
     </fieldset>
 </form>
 

@@ -37,14 +37,16 @@ public class UserDAO {
     }
 
 
-    public void registerUser(String username, String email, String password) throws SQLException {
+    public void registerUser(String username, String email, String password, String name, String surname) throws SQLException {
 
-        String registerQuery = "INSERT into user (userId, username, email, password) VALUES(NULL, ?, ?, ?)";
+        String registerQuery = "INSERT into user (userId, username, email, password, name, surname) VALUES(NULL, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement register = connection.prepareStatement(registerQuery)) {
             register.setString(1, username);
             register.setString(2, email);
             register.setString(3, password);
+            register.setString(4, name);
+            register.setString(5, surname);
 
             register.executeUpdate();
 
@@ -60,7 +62,7 @@ public class UserDAO {
             pstatement.setString(1, username);
 
             try (ResultSet result = pstatement.executeQuery()) {
-                return !result.next(); //returns true if there is no such username
+                return result.next(); //returns true if there is no such username
             }
         }
     }
@@ -73,7 +75,7 @@ public class UserDAO {
             pstatement.setString(1, email);
 
             try (ResultSet result = pstatement.executeQuery()) {
-                return !result.next(); //returns true if there is no such email
+                return result.next(); //returns true if there is no such email
             }
         }
     }
