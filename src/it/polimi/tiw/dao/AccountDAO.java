@@ -53,7 +53,7 @@ public class AccountDAO {
                 account.setUserId(result.getInt("userId"));
                 account.setAccountId(result.getInt("accountId"));
                 account.setBalance((result.getDouble("balance")));
-            }catch (SQLException e) {
+            } catch (SQLException e) {
                 System.out.println("invalid accountId");
                 return null;
             }

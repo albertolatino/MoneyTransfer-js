@@ -39,16 +39,42 @@ public class UserDAO {
 
     public void registerUser(String username, String email, String password) throws SQLException {
 
+        String registerQuery = "INSERT into user (userId, username, email, password) VALUES(NULL, ?, ?, ?)";
+
+        try (PreparedStatement register = connection.prepareStatement(registerQuery)) {
+            register.setString(1, username);
+            register.setString(2, email);
+            register.setString(3, password);
+
+            register.executeUpdate();
+
+        }
+    }
+
+
+    public boolean existingUsername(String username) throws SQLException {
         String existingUsernameQuery = "SELECT * FROM user WHERE username = ?";
+
+        try (PreparedStatement pstatement = connection.prepareStatement(existingUsernameQuery)) {
+
+            pstatement.setString(1, username);
+
+            try (ResultSet result = pstatement.executeQuery()) {
+                return !result.next(); //returns true if there is no such username
+            }
+        }
+    }
+
+    public boolean existingEmail(String email) throws SQLException {
         String existingEmailQuery = "SELECT * FROM user WHERE email = ?";
 
+        try (PreparedStatement pstatement = connection.prepareStatement(existingEmailQuery)) {
 
-        String query = "INSERT into user (userId, username, email, password) VALUES(NULL, ?, ?, ?)";
-        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
-            pstatement.setString(1, username);
-            pstatement.setString(2, email);
-            pstatement.setString(3, password);
-            pstatement.executeUpdate();
+            pstatement.setString(1, email);
+
+            try (ResultSet result = pstatement.executeQuery()) {
+                return !result.next(); //returns true if there is no such email
+            }
         }
     }
 

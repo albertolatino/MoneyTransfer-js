@@ -2,13 +2,13 @@
  * Registration management
  */
 
-(function() { // avoid variables ending up in the global scope
+(function () { // avoid variables ending up in the global scope
 
     document.getElementById("registrationbutton").addEventListener('click', (e) => {
         var form = e.target.closest("form");
         if (form.checkValidity()) {
             makeCall("POST", 'RegisterUser', e.target.closest("form"),
-                function(req) {
+                function (req) {
                     if (req.readyState == XMLHttpRequest.DONE) {
                         var message = req.responseText;
                         switch (req.status) {
