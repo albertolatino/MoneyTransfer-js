@@ -66,7 +66,7 @@ public class CreateTransaction extends HttpServlet {
         }
 
         //todo rivedere attributo su session (dispatcher)
-        Integer originAccountId = (Integer) request.getSession().getAttribute("accountId");
+        Integer originAccountId = (Integer) request.getSession().getAttribute("accountid");
 
         //account id origin (mine) + balance
         //account id destination + balance

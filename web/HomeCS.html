@@ -13,7 +13,7 @@
     <a href="Logout">Logout</a>
 </div>
 <h1>Home</h1>
-<p>Welcome back <span id="id_username"></span></p>
+<p>Nice to see you again <span id="id_username"></span></p>
 <div id="id_alert" class="alertmessage"></div>
 <table>
     <tr>
@@ -31,66 +31,21 @@
             </table>
         </td>
         <td>
-            <table id="id_detailcontainer" class="boxed">
+            <table id="id_transactionscontainer" class="boxed">
                 <thead>
+                <!-- todo add table titles account and transactions-->
                 <tr>
+                    <th>ID</th>
                     <th>Date</th>
-                    <th>Destination</th>
-                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Origin ID</th>
+                    <th>Destination ID</th>
                     <th>Description</th>
-                    <th>Country</th>
-                    <th>Province</th>
-                    <th>City</th>
-                    <th>Fund</th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr>
-                    <td id="id_date"></td>
-                    <td id="id_destination"></td>
-                    <td id="id_status"></td>
-                    <td id="id_description"></td>
-                    <td id="id_country"></td>
-                    <td id="id_province"></td>
-                    <td id="id_city"></td>
-                    <td id="id_fund"></td>
-                </tr>
+                <tbody id = "id_transactionsbody">
                 </tbody>
             </table>
-            <table id="id_expensecontainer" class="boxed">
-                <thead>
-                <th>Food</th>
-                <th>Accommodation</th>
-                <th>Transportation</th>
-                </thead>
-                <tbody>
-                <td id="id_food"></td>
-                <td id="id_accomodation"></td>
-                <td id="id_transportation"></td>
-                </tbody>
-            </table>
-            <form id="id_expenseform" action="#">
-                <fieldset>
-                    <p>
-                        Food expenses: <input type="number" step="0.0001" name="food"
-                                              min=0 required/>
-                    </p>
-                    <p>
-                        Accomodation expenses: <input type="number" step="0.0001"
-                                                      name="accomodation" min=0 required/>
-                    </p>
-                    <p>
-                        Transportation expenses: <input type="number" step="0.0001"
-                                                        name="transportation" min=0 required/>
-                    </p>
-                    <input type="hidden" name="missionid">
-                    <input type="button" name="Save Expenses" value="Save">
-                </fieldset>
-            </form>
-            <form id="id_closeform" action="#">
-                <input type="hidden" name="missionid">
-                <input type="button" type="button" name="Close mission" value="Close">
-            </form>
         </td>
     </tr>
     <tr>

@@ -1,7 +1,7 @@
 (function () { // avoid variables ending up in the global scope
 
     // page components
-    var missionDetails, accountsList, wizard,
+    var transactionsList, accountsList, wizard,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -74,10 +74,10 @@
                 linkText = document.createTextNode("Details");
                 anchor.appendChild(linkText);
                 //anchor.missionid = account.id; // make list item clickable
-                anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
+                anchor.setAttribute('accountid', account.accountId); // set a custom HTML attribute
                 anchor.addEventListener("click", (e) => {
                     // dependency via module parameter
-                    accountDetails.show(e.target.getAttribute("accountid")); // the list must know the details container
+                    transactionsList.show(undefined,e.target.getAttribute("accountid")); // the list must know the details container
                 }, false);
                 anchor.href = "#";
                 row.appendChild(detailsCell);
@@ -89,7 +89,7 @@
 
         this.autoclick = function (accountId) {
             var e = new Event("click");
-            var selector = "a[missionid='" + accountId + "']";
+            var selector = "a[accountid='" + accountId + "']";
             var anchorToClick =
                 (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
             if (anchorToClick) anchorToClick.dispatchEvent(e);
@@ -97,127 +97,85 @@
 
     }
 
-    function MissionDetails(options) {
-        this.alert = options['alert'];
-        this.detailcontainer = options['detailcontainer'];
-        this.expensecontainer = options['expensecontainer'];
-        this.expenseform = options['expenseform'];
-        this.closeform = options['closeform'];
-        this.date = options['date'];
-        this.destination = options['destination'];
-        this.status = options['status'];
-        this.description = options['description'];
-        this.country = options['country'];
-        this.province = options['province'];
-        this.city = options['city'];
-        this.fund = options['fund'];
-        this.food = options['food'];
-        this.accomodation = options['accomodation'];
-        this.travel = options['transportation'];
 
-        this.registerEvents = function (orchestrator) {
-            this.expenseform.querySelector("input[type='button']").addEventListener('click', (e) => {
-                var form = e.target.closest("form");
-                if (form.checkValidity()) {
-                    var self = this,
-                        accountToReport = form.querySelector("input[type = 'hidden']").value;
-                    makeCall("POST", 'CreateExpensesReport', form,
-                        function (req) {
-                            if (req.readyState == 4) {
-                                var message = req.responseText;
-                                if (req.status == 200) {
-                                    orchestrator.refresh(accountToReport);
-                                } else {
-                                    self.alert.textContent = message;
-                                }
-                            }
-                        }
-                    );
-                } else {
-                    form.reportValidity();
-                }
-            });
+    function TransactionsList(_alert, _listcontainer, _listcontainerbody) {
+        this.alert = _alert;
+        this.listcontainer = _listcontainer;
+        this.listcontainerbody = _listcontainerbody;
 
-            this.closeform.querySelector("input[type='button']").addEventListener('click', (event) => {
-                var self = this,
-                    form = event.target.closest("form"),
-                    missionToClose = form.querySelector("input[type = 'hidden']").value;
-                makeCall("POST", 'CloseMission', form,
-                    function (req) {
-                        if (req.readyState == 4) {
-                            var message = req.responseText;
-                            if (req.status == 200) {
-                                orchestrator.refresh(missionToClose);
-                            } else {
-                                self.alert.textContent = message;
-                            }
-                        }
-                    }
-                );
-            });
+        this.reset = function () {
+            this.listcontainer.style.visibility = "hidden";
         }
 
-
-        this.show = function (missionid) {
+        this.show = function (next, accountid) {
             var self = this;
-            makeCall("GET", "GetMissionDetailsData?missionid=" + missionid, null,
+            makeCall("GET", "GetAccountDetailsData?accountid=" + accountid, null,
                 function (req) {
                     if (req.readyState == 4) {
                         var message = req.responseText;
                         if (req.status == 200) {
-                            var mission = JSON.parse(req.responseText);
-                            self.update(mission); // self is the object on which the function
-                            // is applied
-                            self.detailcontainer.style.visibility = "visible";
-                            switch (mission.status) {
-                                case "OPEN":
-                                    self.expensecontainer.style.visibility = "hidden";
-                                    self.expenseform.style.visibility = "visible";
-                                    self.expenseform.missionid.value = mission.id;
-                                    self.closeform.style.visibility = "hidden";
-                                    break;
-                                case "REPORTED":
-                                    self.expensecontainer.style.visibility = "visible";
-                                    self.expenseform.style.visibility = "hidden";
-                                    self.closeform.missionid.value = mission.id;
-                                    self.closeform.style.visibility = "visible";
-                                    break;
-                                case "CLOSED":
-                                    self.expensecontainer.style.visibility = "visible";
-                                    self.expenseform.style.visibility = "hidden";
-                                    self.closeform.style.visibility = "hidden";
-                                    break;
+                            var transactionsToShow = JSON.parse(req.responseText);
+                            if (transactionsToShow.length == 0) {
+                                self.alert.textContent = "No transactions yet!";
+                                return;
                             }
-                        } else {
-                            self.alert.textContent = message;
-
+                            self.update(transactionsToShow); // self visible by closure
+                            if (next) next(); // show the default element of the list if present
                         }
+                    } else {
+                        self.alert.textContent = message;
                     }
                 }
             );
         };
 
 
-        this.reset = function () {
-            this.detailcontainer.style.visibility = "hidden";
-            this.expensecontainer.style.visibility = "hidden";
-            this.expenseform.style.visibility = "hidden";
-            this.closeform.style.visibility = "hidden";
+        this.update = function (transactions) {
+            var elem, i, row, transactionIdCell, dateCell, amountCell, originCell, destinationCell, descriptionCell;
+            this.listcontainerbody.innerHTML = ""; // empty the table body
+            // build updated list
+            var self = this;
+            transactions.forEach(function (transaction) { // self visible here, not this
+                row = document.createElement("tr");
+                transactionIdCell = document.createElement("td");
+                transactionIdCell.textContent = transaction.transactionId;
+                row.appendChild(transactionIdCell);
+
+                dateCell = document.createElement("td");
+                dateCell.textContent = transaction.date;
+                row.appendChild(dateCell);
+
+                amountCell = document.createElement("td");
+                amountCell.textContent = transaction.amount;
+                row.appendChild(amountCell);
+
+                originCell = document.createElement("td");
+                originCell.textContent = transaction.originId;
+                row.appendChild(originCell);
+
+                destinationCell = document.createElement("td");
+                destinationCell.textContent = transaction.destinationId;
+                row.appendChild(destinationCell);
+
+                descriptionCell = document.createElement("td");
+                descriptionCell.textContent = transaction.description;
+                row.appendChild(descriptionCell);
+
+                self.listcontainerbody.appendChild(row);
+            });
+            this.listcontainer.style.visibility = "visible";
+
         }
 
-        this.update = function (m) {
-            this.date.textContent = m.startDate;
-            this.destination.textContent = m.destination;
-            this.status.textContent = m.status;
-            this.description.textContent = m.description;
-            this.country.textContent = m.country;
-            this.province.textContent = m.province;
-            this.city.textContent = m.city;
-            this.fund.textContent = m.fund;
-            this.food.textContent = m.expenses.food;
-            this.accomodation.textContent = m.expenses.accomodation;
-            this.travel.textContent = m.expenses.transportation;
+        //todo quando facciamo transaction autoclick su "details" di account che fa transaction per refresh lista di transactions
+        this.autoclick = function (accountId) {
+            var e = new Event("click");
+            var selector = "a[accountid='" + accountId + "']";
+            var anchorToClick =
+                (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
+            if (anchorToClick) anchorToClick.dispatchEvent(e);
         }
+
     }
 
     function Wizard(wizardId, alert) {
@@ -313,25 +271,12 @@
                 document.getElementById("id_listcontainer"),
                 document.getElementById("id_listcontainerbody"));
 
-            missionDetails = new MissionDetails({ // many parameters, wrap them in an object
-                alert: alertContainer,
-                detailcontainer: document.getElementById("id_detailcontainer"),
-                expensecontainer: document.getElementById("id_expensecontainer"),
-                expenseform: document.getElementById("id_expenseform"),
-                closeform: document.getElementById("id_closeform"),
-                date: document.getElementById("id_date"),
-                destination: document.getElementById("id_destination"),
-                status: document.getElementById("id_status"),
-                description: document.getElementById("id_description"),
-                country: document.getElementById("id_country"),
-                province: document.getElementById("id_province"),
-                city: document.getElementById("id_city"),
-                fund: document.getElementById("id_fund"),
-                food: document.getElementById("id_food"),
-                accomodation: document.getElementById("id_accomodation"),
-                transportation: document.getElementById("id_transportation")
-            });
-            missionDetails.registerEvents(this);
+
+            transactionsList = new TransactionsList(
+                alertContainer,
+                document.getElementById("id_transactionscontainer"),
+                document.getElementById("id_transactionsbody"));
+
 
             wizard = new Wizard(document.getElementById("id_createmissionform"), alertContainer);
             wizard.registerEvents(this);
@@ -345,10 +290,9 @@
         this.refresh = function (currentAccount) {
             alertContainer.textContent = "";
             accountsList.reset();
-            missionDetails.reset();
             accountsList.show(function () {
                 accountsList.autoclick(currentAccount);
-            }); // closure preserves visibility of this
+            },currentAccount); // closure preserves visibility of this
             wizard.reset();
         };
     }

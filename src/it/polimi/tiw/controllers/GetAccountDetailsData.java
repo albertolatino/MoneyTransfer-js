@@ -50,7 +50,7 @@ public class GetAccountDetailsData extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
             return;
         }
-        request.getSession().setAttribute("accountId", accountId);
+        request.getSession().setAttribute("accountid", accountId);
 
 
         //todo passare account a questa servlet in modo che venga passato a template account details
@@ -67,7 +67,7 @@ public class GetAccountDetailsData extends HttpServlet {
             return;
         }
 
-        //add accounts to the parameters
+        //add transactions to the parameters
 
         Gson gson = new GsonBuilder().create();
         String json = gson.toJson(transactions);
