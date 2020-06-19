@@ -1,10 +1,11 @@
 package it.polimi.tiw.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.polimi.tiw.beans.Transaction;
 import it.polimi.tiw.dao.TransactionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,12 +17,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/GetAccountDetails")
-public class GetAccountDetails extends HttpServlet {
+@WebServlet("/GetAccountDetailsData")
+public class GetAccountDetailsData extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
 
-    public GetAccountDetails() {
+    public GetAccountDetailsData() {
         super();
     }
 
@@ -49,6 +50,7 @@ public class GetAccountDetails extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
             return;
         }
+        request.getSession().setAttribute("accountId", accountId);
 
 
         //todo passare account a questa servlet in modo che venga passato a template account details
@@ -58,18 +60,23 @@ public class GetAccountDetails extends HttpServlet {
         try {
             transactions = transactionDAO.findTransactionsByAccount(accountId);
         } catch (SQLException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println("Couldn't recover transactions");
+
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover transactions");
             return;
         }
 
-        request.getSession().setAttribute("accountId", accountId);
+        //add accounts to the parameters
 
-        // Redirect to the Home page and add missions to the parameters
-        String path = "/WEB-INF/AccountDetails.html";
-        ServletContext servletContext = getServletContext();
-        //final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-        //ctx.setVariable("transactions", transactions);
-        //templateEngine.process(path, ctx, response.getWriter());
+        Gson gson = new GsonBuilder().create();
+        String json = gson.toJson(transactions);
+
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(json);
+
     }
 
     public void destroy() {

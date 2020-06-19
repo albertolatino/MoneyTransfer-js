@@ -1,7 +1,7 @@
 (function () { // avoid variables ending up in the global scope
 
     // page components
-    var missionDetails, missionsList, wizard,
+    var missionDetails, accountsList, wizard,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -23,7 +23,7 @@
         }
     }
 
-    function MissionsList(_alert, _listcontainer, _listcontainerbody) {
+    function AccountsList(_alert, _listcontainer, _listcontainerbody) {
         this.alert = _alert;
         this.listcontainer = _listcontainer;
         this.listcontainerbody = _listcontainerbody;
@@ -34,17 +34,17 @@
 
         this.show = function (next) {
             var self = this;
-            makeCall("GET", "GetMissionsData", null,
+            makeCall("GET", "GetAccountData", null,
                 function (req) {
                     if (req.readyState == 4) {
                         var message = req.responseText;
                         if (req.status == 200) {
-                            var missionsToShow = JSON.parse(req.responseText);
-                            if (missionsToShow.length == 0) {
-                                self.alert.textContent = "No missions yet!";
+                            var accountsToShow = JSON.parse(req.responseText);
+                            if (accountsToShow.length == 0) {
+                                self.alert.textContent = "No accounts yet!";
                                 return;
                             }
-                            self.update(missionsToShow); // self visible by closure
+                            self.update(accountsToShow); // self visible by closure
                             if (next) next(); // show the default element of the list if present
                         }
                     } else {
@@ -55,43 +55,43 @@
         };
 
 
-        this.update = function (arrayMissions) {
-            var elem, i, row, destcell, datecell, linkcell, anchor;
+        this.update = function (accounts) {
+            var elem, i, row, accountIdCell, balanceCell, detailsCell, anchor;
             this.listcontainerbody.innerHTML = ""; // empty the table body
             // build updated list
             var self = this;
-            arrayMissions.forEach(function (mission) { // self visible here, not this
+            accounts.forEach(function (account) { // self visible here, not this
                 row = document.createElement("tr");
-                destcell = document.createElement("td");
-                destcell.textContent = mission.destination;
-                row.appendChild(destcell);
-                datecell = document.createElement("td");
-                datecell.textContent = mission.startDate;
-                row.appendChild(datecell);
-                linkcell = document.createElement("td");
-                anchor = document.createElement("a");
-                linkcell.appendChild(anchor);
-                linkText = document.createTextNode("Show");
+                accountIdCell = document.createElement("td");
+                accountIdCell.textContent = account.accountId;
+                row.appendChild(accountIdCell);
+                balanceCell = document.createElement("td");
+                balanceCell.textContent = account.balance;
+                row.appendChild(balanceCell);
+                detailsCell = document.createElement("td");
+                anchor = document.createElement("detailsLink");
+                detailsCell.appendChild(anchor);
+                linkText = document.createTextNode("Details");
                 anchor.appendChild(linkText);
-                //anchor.missionid = mission.id; // make list item clickable
-                anchor.setAttribute('missionid', mission.id); // set a custom HTML attribute
+                //anchor.missionid = account.id; // make list item clickable
+                anchor.setAttribute('accountid', account.id); // set a custom HTML attribute
                 anchor.addEventListener("click", (e) => {
                     // dependency via module parameter
-                    missionDetails.show(e.target.getAttribute("missionid")); // the list must know the details container
+                    accountDetails.show(e.target.getAttribute("accountid")); // the list must know the details container
                 }, false);
                 anchor.href = "#";
-                row.appendChild(linkcell);
+                row.appendChild(detailsCell);
                 self.listcontainerbody.appendChild(row);
             });
             this.listcontainer.style.visibility = "visible";
 
         }
 
-        this.autoclick = function (missionId) {
+        this.autoclick = function (accountId) {
             var e = new Event("click");
-            var selector = "a[missionid='" + missionId + "']";
+            var selector = "a[missionid='" + accountId + "']";
             var anchorToClick =
-                (missionId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
+                (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
             if (anchorToClick) anchorToClick.dispatchEvent(e);
         }
 
@@ -120,13 +120,13 @@
                 var form = e.target.closest("form");
                 if (form.checkValidity()) {
                     var self = this,
-                        missionToReport = form.querySelector("input[type = 'hidden']").value;
+                        accountToReport = form.querySelector("input[type = 'hidden']").value;
                     makeCall("POST", 'CreateExpensesReport', form,
                         function (req) {
                             if (req.readyState == 4) {
                                 var message = req.responseText;
                                 if (req.status == 200) {
-                                    orchestrator.refresh(missionToReport);
+                                    orchestrator.refresh(accountToReport);
                                 } else {
                                     self.alert.textContent = message;
                                 }
@@ -308,13 +308,12 @@
                 document.getElementById("id_username"));
             personalMessage.show();
 
-            missionsList = new MissionsList(
+            accountsList = new AccountsList(
                 alertContainer,
                 document.getElementById("id_listcontainer"),
                 document.getElementById("id_listcontainerbody"));
 
-            missionDetails = new MissionDetails({ // many parameters, wrap them in an
-                // object
+            missionDetails = new MissionDetails({ // many parameters, wrap them in an object
                 alert: alertContainer,
                 detailcontainer: document.getElementById("id_detailcontainer"),
                 expensecontainer: document.getElementById("id_expensecontainer"),
@@ -343,12 +342,12 @@
         };
 
 
-        this.refresh = function (currentMission) {
+        this.refresh = function (currentAccount) {
             alertContainer.textContent = "";
-            missionsList.reset();
+            accountsList.reset();
             missionDetails.reset();
-            missionsList.show(function () {
-                missionsList.autoclick(currentMission);
+            accountsList.show(function () {
+                accountsList.autoclick(currentAccount);
             }); // closure preserves visibility of this
             wizard.reset();
         };

@@ -5,6 +5,8 @@
  * causes variables and functions not to end up in the global scope.
  */
 
+//todo rivedere ordinamento per balance e per account nr
+
 (function () {
 
     // Returns the text content of a cell.
@@ -13,7 +15,7 @@
         // row
     }
 
-    /*
+      /*
        * Creates a function that compares two rows based on the cell in the idx
        * position.
        */

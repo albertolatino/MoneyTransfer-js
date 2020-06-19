@@ -13,7 +13,7 @@
     </context-param>
     <context-param>
         <param-name>dbPassword</param-name>
-        <param-value>Yamahamusic98xy</param-value>
+        <param-value>forceProof00</param-value>
     </context-param>
     <context-param>
         <param-name>dbDriver</param-name>
@@ -37,8 +37,8 @@
         <url-pattern>/CloseMission</url-pattern>
         <url-pattern>/CreateExpensesReport</url-pattern>
         <url-pattern>/CreateMission</url-pattern>
-        <url-pattern>/GetMissionDetailsData</url-pattern>
-        <url-pattern>/GetMissionsData</url-pattern>
+        <url-pattern>/GetAccountDetailsData</url-pattern>
+        <url-pattern>/GetAccountData</url-pattern>
         <url-pattern>/Logout</url-pattern>
         <url-pattern>/HomeCS.html</url-pattern>
     </filter-mapping>
