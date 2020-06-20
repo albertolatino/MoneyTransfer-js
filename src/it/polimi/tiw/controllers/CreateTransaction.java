@@ -7,6 +7,7 @@ import it.polimi.tiw.utils.ConnectionHandler;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-
+@MultipartConfig
 @WebServlet("/CreateTransaction")
 public class CreateTransaction extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -90,18 +91,19 @@ public class CreateTransaction extends HttpServlet {
             usernameOwnsAccount = transactionDAO.checkAccountOwner(destinationUsername, destinationAccountId);
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to retrieve accounts data");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println("Couldn't retrieve accounts data");
             return;
         }
 
 
-     /*
+        /*
         transaction checks:
         existence destination (account)
         origin != destination (account)
         amount <= origin.balance (account)
         username owns destination account (user, account)
-     */
+        */
 
 
         String errorMsg = "";
