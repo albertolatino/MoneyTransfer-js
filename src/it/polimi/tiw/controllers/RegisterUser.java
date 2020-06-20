@@ -53,11 +53,11 @@ public class RegisterUser extends HttpServlet {
         try {
 
             if (userDao.existingEmail(email)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().println("This email is already associated to an account");
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //todo
             } else if (userDao.existingUsername(username)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().println("This username is already taken");
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST); //todo
             } else {
                 userDao.registerUser(username, email, pwd, name, surname);
                 response.setContentType("application/json");

@@ -5,7 +5,7 @@ import java.sql.Date;
 
 public class Transaction {
 
-    private int transactionId;//KEY
+    private int transactionId;
     private double amount;
     private Date date;
     private int originId;
