@@ -50,7 +50,7 @@ public class GetAccountData extends HttpServlet {
         } catch (SQLException e) {
             // for debugging only e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().println("Couldn't to recover accounts");
+            response.getWriter().println("Couldn't recover accounts");
             return;
         }
 

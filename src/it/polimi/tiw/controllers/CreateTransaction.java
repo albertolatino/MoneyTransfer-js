@@ -50,10 +50,16 @@ public class CreateTransaction extends HttpServlet {
         String description = null;
 
         try {
-            amount = Double.parseDouble(request.getParameter("amount"));
             destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
-            destinationAccountId = Integer.parseInt(request.getParameter("recipient-accountid"));
+            System.out.println(destinationUsername);
             description = StringEscapeUtils.escapeJava(request.getParameter("description"));
+            System.out.println(description);
+
+            String recipientAccount = request.getParameter("recipient-accountid");
+            System.out.println(destinationAccountId);
+            destinationAccountId = Integer.parseInt(recipientAccount);
+            amount = Double.parseDouble(request.getParameter("amount"));
+            //description = StringEscapeUtils.escapeJava(request.getParameter("description"));
 
             isBadRequest = amount <= 0 || destinationUsername.isEmpty() || description.isEmpty();
         } catch (NumberFormatException | NullPointerException e) {
@@ -61,7 +67,8 @@ public class CreateTransaction extends HttpServlet {
             e.printStackTrace();
         }
         if (isBadRequest) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Incorrect or missing param values");
             return;
         }
 
@@ -86,9 +93,6 @@ public class CreateTransaction extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to retrieve accounts data");
             return;
         }
-
-        //ServletContext servletContext = getServletContext();
-        //final WebContext context = new WebContext(request, response, servletContext, request.getLocale());
 
 
      /*
@@ -123,16 +127,19 @@ public class CreateTransaction extends HttpServlet {
                 origin = accountDAO.findAccountById(originAccountId);
                 destination = accountDAO.findAccountById(destinationAccountId);
             } catch (SQLException e) {
-                e.printStackTrace();
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create transaction");
+                //e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().println("Couldn't create transaction");
                 return;
             }
             path = "WEB-INF/confirmation.html";
             //context.setVariable("origin", origin);
             //context.setVariable("destination", destination);
 
-
         } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println(errorMsg);
+
             //error page specifying error type
             //context.setVariable("errorMsg", errorMsg);
             path = "WEB-INF/transactionError.html";
