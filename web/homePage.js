@@ -116,6 +116,7 @@
                         if (req.status == 200) {
                             var transactionsToShow = JSON.parse(req.responseText);
                             if (transactionsToShow.length == 0) {
+                                self.reset();
                                 self.alert.textContent = "No transactions yet!";
                                 return;
                             }
