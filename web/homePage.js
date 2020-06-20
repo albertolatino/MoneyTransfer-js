@@ -181,12 +181,12 @@
 
     function Wizard(wizardId, alert) {
         // minimum date the user can choose, in this case now and in the future
-        var now = new Date(),
-            formattedDate = now.toISOString().substring(0, 10);
+        //var now = new Date(),
+        // formattedDate = now.toISOString().substring(0, 10);
         this.wizard = wizardId;
         this.alert = alert;
 
-        this.wizard.querySelector('input[type="date"]').setAttribute("min", formattedDate);
+        //this.wizard.querySelector('input[type="date"]').setAttribute("min", formattedDate);
 
         this.registerEvents = function (orchestrator) {
             // Manage previous and next buttons
@@ -224,7 +224,7 @@
 
                 if (valid) {
                     var self = this;
-                    makeCall("POST", 'CreateMission', e.target.closest("form"),
+                    makeCall("POST", 'CreateTransaction', e.target.closest("form"),
                         function (req) {
                             if (req.readyState == XMLHttpRequest.DONE) {
                                 var message = req.responseText; // error message or mission id
@@ -247,10 +247,18 @@
         };
 
         this.reset = function () {
-            var fieldsets = document.querySelectorAll("#" + this.wizard.id + " fieldset");
+            /*fieldsetsID = "#" + this.wizard.id + " fieldset";
+            var fieldsets = document.querySelectorAll(fieldsetsID);
             fieldsets[0].hidden = false;
             fieldsets[1].hidden = true;
-            fieldsets[2].hidden = true;
+            fieldsets[2].hidden = true;*/
+            fieldset1 = document.querySelector("#first");
+            fieldset2 = document.querySelector("#second");
+            //fieldset3 = document.querySelector("#third");
+
+            fieldset1.hidden = false;
+            fieldset2.hidden = true;
+            //fieldset3.hidden = true;
 
         }
 
@@ -279,7 +287,7 @@
                 document.getElementById("id_transactionsbody"));
 
 
-            wizard = new Wizard(document.getElementById("id_createmissionform"), alertContainer);
+            wizard = new Wizard(document.getElementById("id_createtransactionform"), alertContainer);
             wizard.registerEvents(this);
 
             document.querySelector("a[href='Logout']").addEventListener('click', () => {
