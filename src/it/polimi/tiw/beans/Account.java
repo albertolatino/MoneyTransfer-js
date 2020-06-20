@@ -3,8 +3,8 @@ package it.polimi.tiw.beans;
 
 public class Account {
 
-    private int userId;//KEY
-    private int accountId;//KEY
+    private int userId;
+    private int accountId;
     private double balance;
 
     public int getUserId() {

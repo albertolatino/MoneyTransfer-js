@@ -45,22 +45,19 @@ public class CreateTransaction extends HttpServlet {
         // Get and parse all parameters from request
         boolean isBadRequest = false;
 
+        String recipientAccount = null;
         String destinationUsername = null;
         Integer destinationAccountId = null;
         Double amount = null;
         String description = null;
 
         try {
-            destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
-            System.out.println(destinationUsername);
-            description = StringEscapeUtils.escapeJava(request.getParameter("description"));
-            System.out.println(description);
 
-            String recipientAccount = request.getParameter("recipient-accountid");
-            System.out.println(destinationAccountId);
+            recipientAccount = StringEscapeUtils.escapeJava(request.getParameter("recipient-accountid"));
+            destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
             destinationAccountId = Integer.parseInt(recipientAccount);
             amount = Double.parseDouble(request.getParameter("amount"));
-            //description = StringEscapeUtils.escapeJava(request.getParameter("description"));
+            description = StringEscapeUtils.escapeJava(request.getParameter("description"));
 
             isBadRequest = amount <= 0 || destinationUsername.isEmpty() || description.isEmpty();
         } catch (NumberFormatException | NullPointerException e) {
@@ -96,6 +93,9 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
+        getServletContext().setAttribute("contactUsername", destinationUsername);
+        getServletContext().setAttribute("contactAccount", destinationAccountId);
+
 
         /*
         transaction checks:
@@ -118,7 +118,6 @@ public class CreateTransaction extends HttpServlet {
             errorMsg = "Insufficient funds for this transaction";
         }
 
-        String path;
 
         //no errors in transaction -> create transaction
         if (errorMsg.equals("")) {
@@ -126,29 +125,21 @@ public class CreateTransaction extends HttpServlet {
             // Create transaction in DB
             try {
                 transactionDAO.createTransaction(originAccountId, destinationAccountId, amount, description);
-                origin = accountDAO.findAccountById(originAccountId);
-                destination = accountDAO.findAccountById(destinationAccountId);
+                //todo confirmation
+                //origin = accountDAO.findAccountById(originAccountId);
+                //destination = accountDAO.findAccountById(destinationAccountId);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().println(originAccountId);
             } catch (SQLException e) {
                 //e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 response.getWriter().println("Couldn't create transaction");
-                return;
             }
-            path = "WEB-INF/confirmation.html";
-            //context.setVariable("origin", origin);
-            //context.setVariable("destination", destination);
 
         } else {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().println(errorMsg);
-
-            //error page specifying error type
-            //context.setVariable("errorMsg", errorMsg);
-            path = "WEB-INF/transactionError.html";
         }
-
-
-        //templateEngine.process(path, context, response.getWriter());
 
     }
 
