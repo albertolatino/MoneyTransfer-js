@@ -1,7 +1,7 @@
 (function () { // avoid variables ending up in the global scope
 
     // page components
-    var transactionsList, accountsList, wizard,
+    let transactionsList, accountsList, wizard, contactList,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -71,7 +71,7 @@
                 detailsCell = document.createElement("td");
                 anchor = document.createElement("a");
                 detailsCell.appendChild(anchor);
-                linkText = document.createTextNode("Details");
+                linkText = document.createTextNode("Show");
                 anchor.appendChild(linkText);
                 //anchor.missionid = account.id; // make list item clickable
                 anchor.setAttribute('accountid', account.accountId); // set a custom HTML attribute
@@ -229,6 +229,7 @@
                             if (req.readyState == XMLHttpRequest.DONE) {
                                 var message = req.responseText; // error message or mission id
                                 if (req.status == 200) {
+                                    document.getElementById("addtocontacts").style.visibility = "visible";
                                     orchestrator.refresh(message); // id of the new mission passed
                                 } else {
                                     self.alert.textContent = message;
@@ -269,9 +270,9 @@
     }
 
     function PageOrchestrator() {
-        var alertContainer = document.getElementById("id_alert");
+        const alertContainer = document.getElementById("id_alert");
         this.start = function () {
-            personalMessage = new PersonalMessage(sessionStorage.getItem('username'),
+            let personalMessage = new PersonalMessage(sessionStorage.getItem('username'),
                 document.getElementById("id_username"));
             personalMessage.show();
 
@@ -290,6 +291,9 @@
             wizard = new Wizard(document.getElementById("id_createtransactionform"), alertContainer);
             wizard.registerEvents(this);
 
+            contactList = new ContactList(alertContainer);
+            contactList.registerEvents(this);
+
             document.querySelector("a[href='Logout']").addEventListener('click', () => {
                 window.sessionStorage.removeItem('username');
             })
@@ -305,4 +309,43 @@
             wizard.reset();
         };
     }
+
+
+    function ContactList(_alert) {
+
+        this.alert = _alert;
+
+        const self = this;
+
+        this.registerEvents = function(orchestrator) {
+            self.registerAddContactEvents(orchestrator, "true");
+            self.registerAddContactEvents(orchestrator, "false");
+        }
+
+        this.registerAddContactEvents = function(orchestrator, boolString) {
+
+            document.getElementById(boolString + "_button").addEventListener('click', () => {
+
+                makeCall("POST", 'AddToContacts?addToContacts='+boolString, null ,
+                    function (req) {
+                        if (req.readyState == XMLHttpRequest.DONE) {
+                            var message = req.responseText; // error message or mission id
+                            if (req.status == 200) {
+                                document.getElementById("addtocontacts").style.visibility = "hidden";
+                                //orchestrator.refresh(message); //TODO AL MAX FAI REFRESH PERCHé VUOI FAR VEDERE NUOVA LISTA CONTATTI
+                                self.alert.textContent = "User successfully added!"
+
+                            } else {
+                                self.alert.textContent = message;
+                                self.reset();
+                            }
+                        }
+                    }
+                );
+            });
+        }
+    }
+
+
+
 })();

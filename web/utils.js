@@ -16,4 +16,5 @@ function makeCall(method, url, formElement, cback, reset = true) {
     if (formElement !== null && reset === true) {
         formElement.reset();
     }
+
 }

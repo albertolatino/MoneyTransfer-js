@@ -13,3 +13,7 @@ th.sortable {
 #successfulRegistration{
 	visibility: hidden;
 }
+
+#addtocontacts{
+	visibility: hidden;
+}
