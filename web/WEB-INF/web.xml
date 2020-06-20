@@ -40,6 +40,7 @@
         <url-pattern>/GetAccountData</url-pattern>
         <url-pattern>/Logout</url-pattern>
         <url-pattern>/HomeCS.html</url-pattern>
+        <url-pattern>/AddToContacts</url-pattern>
     </filter-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

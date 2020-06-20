@@ -6,6 +6,8 @@ import it.polimi.tiw.utils.ConnectionHandler;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +15,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@MultipartConfig
+@WebServlet("/AddToContacts")
 public class AddToContacts extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private Connection connection = null;
@@ -32,9 +36,12 @@ public class AddToContacts extends HttpServlet {
 
         String boolString = StringEscapeUtils.escapeJava(request.getParameter("addToContacts"));
 
-        String owner = StringEscapeUtils.escapeJava(request.getParameter("username"));
+        String owner = ((User)request.getSession().getAttribute("user")).getUsername();
         String contactUsername = (String) getServletContext().getAttribute("contactUsername");
         Integer contactAccount = (Integer) getServletContext().getAttribute("contactAccount");
+
+        System.out.println(contactUsername);
+        System.out.println(contactAccount);
 
         if (owner == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -48,7 +55,10 @@ public class AddToContacts extends HttpServlet {
             ContactDAO contactDAO = new ContactDAO(connection);
             try {
 
-                if(contactDAO.existingContact(owner, contactUsername, contactAccount)) {
+                if(owner.equals(contactUsername)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().println("You cannot register yourself");
+                } else if (contactDAO.existingContact(owner, contactUsername, contactAccount)) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.getWriter().println("This contact is already registered");
                 } else {

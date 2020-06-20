@@ -82,7 +82,7 @@ public class ContactDAO {
 
 
     public boolean existingContact(String ownerUsername, String contactUsername, int contactAccount) throws SQLException {
-        String existingContactQuery = "SELECT * FROM contact WHERE contactId = ? AND ownerUsername = ? AND contactUsername AND contactAccount = ?";
+        String existingContactQuery = "SELECT * FROM contact WHERE ownerUsername = ? AND contactUsername = ? AND contactAccount = ?";
 
         try (PreparedStatement pstatement = connection.prepareStatement(existingContactQuery)) {
 
