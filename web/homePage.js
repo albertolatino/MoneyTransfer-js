@@ -69,7 +69,7 @@
                 balanceCell.textContent = account.balance;
                 row.appendChild(balanceCell);
                 detailsCell = document.createElement("td");
-                anchor = document.createElement("detailsLink");
+                anchor = document.createElement("a");
                 detailsCell.appendChild(anchor);
                 linkText = document.createTextNode("Details");
                 anchor.appendChild(linkText);
