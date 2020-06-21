@@ -23,15 +23,13 @@ public class ContactDAO {
      * @param owner the owner of the contact list
      * @return list of all his saved contacts
      */
-    public List<Contact> retrieveContactList(String owner) throws SQLException {
-
+    public List<Contact> getContactList(String owner) throws SQLException {
 
         List<Contact> contacts = new ArrayList<>();
-
-        String query = "SELECT contactUsername, contactAccount FROM contact  WHERE ownerUsername = ? GROUP BY contactUsername";
-
         Contact contact = null;
         String contactUsername;
+
+        String query = "SELECT contactUsername, contactAccount FROM contact  WHERE ownerUsername = ? ORDER BY contactUsername";
 
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setString(1, owner);
@@ -39,13 +37,11 @@ public class ContactDAO {
             try (ResultSet result = pstatement.executeQuery()) {
 
                 while (result.next()) {
-
                      contactUsername = result.getString("contactUsername");
 
                     if(contact != null && contactUsername.equals(contact.getContactUsername())) {
                         //only add his account
                         contact.addContactAccounts(result.getInt("contactAccount"));
-
                     } else {
                         //if contactUsername != previous one
 
@@ -62,9 +58,6 @@ public class ContactDAO {
         }
         return contacts;
     }
-
-
-
 
 
     public void registerContact(String ownerUsername, String contactUsername, int contactAccount) throws SQLException {
@@ -91,7 +84,7 @@ public class ContactDAO {
             pstatement.setInt(3, contactAccount);
 
             try (ResultSet result = pstatement.executeQuery()) {
-                return result.next(); //returns true if there is no such username
+                return result.next(); //returns true if contact exists
             }
         }
     }

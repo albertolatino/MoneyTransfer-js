@@ -1,7 +1,12 @@
 package it.polimi.tiw.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import it.polimi.tiw.beans.Contact;
+import it.polimi.tiw.beans.Transaction;
 import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.ContactDAO;
+import it.polimi.tiw.dao.TransactionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -11,9 +16,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 @MultipartConfig
 @WebServlet("/AddToContacts")
@@ -76,6 +83,43 @@ public class AddToContacts extends HttpServlet {
         // return an error status code and message
         //todo send confirmation
     }
+
+
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        // If the user is not logged in (not present in session) redirect to the login
+        String loginpath = getServletContext().getContextPath() + "/index.html";
+        HttpSession session = request.getSession();
+        if (session.isNew() || session.getAttribute("user") == null) {
+            response.sendRedirect(loginpath);
+            return;
+        }
+
+        String owner = ((User)request.getSession().getAttribute("user")).getUsername();
+
+        ContactDAO contactDAO = new ContactDAO(connection);
+        List<Contact> contacts;
+        try {
+            contacts = contactDAO.getContactList(owner);
+            response.setStatus(HttpServletResponse.SC_OK);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println("Couldn't retrieve contacts");
+            return;
+        }
+
+        Gson gson = new GsonBuilder().create();
+        String json = gson.toJson(contacts);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(json);
+
+    }
+
 
     public void destroy() {
         try {

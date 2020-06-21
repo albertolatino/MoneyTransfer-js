@@ -47,7 +47,8 @@ public class GetAccountDetailsData extends HttpServlet {
             accountId = Integer.parseInt(request.getParameter("accountid"));
         } catch (NumberFormatException | NullPointerException e) {
             // only for debugging e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Incorrect param values");
             return;
         }
         request.getSession().setAttribute("accountid", accountId);
@@ -61,9 +62,7 @@ public class GetAccountDetailsData extends HttpServlet {
             transactions = transactionDAO.findTransactionsByAccount(accountId);
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().println("Couldn't recover transactions");
-
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to recover transactions");
+            response.getWriter().println("Couldn't retrieve transactions");
             return;
         }
 

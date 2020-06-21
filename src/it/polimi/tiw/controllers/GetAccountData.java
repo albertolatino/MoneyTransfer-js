@@ -50,15 +50,13 @@ public class GetAccountData extends HttpServlet {
         } catch (SQLException e) {
             // for debugging only e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().println("Couldn't recover accounts");
+            response.getWriter().println("Couldn't retrieve accounts");
             return;
         }
 
-        // Redirect to the Home page and add accounts to the parameters
 
         Gson gson = new GsonBuilder().create();
         String json = gson.toJson(accounts);
-
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

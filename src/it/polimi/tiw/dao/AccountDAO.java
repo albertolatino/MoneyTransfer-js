@@ -62,22 +62,4 @@ public class AccountDAO {
 
     }
 
-
-    /**
-     * Changes account balance.
-     *
-     * @param accountId Account to be changed.
-     * @param balance   Total balance in account.
-     * @throws SQLException
-     */
-    public void changeAccountBalance(int accountId, double balance) throws SQLException {
-
-        String query = "UPDATE account SET balance = ? WHERE accountId = ? ";
-        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
-            pstatement.setDouble(1, balance);
-            pstatement.setInt(2, accountId);
-            pstatement.executeUpdate();
-        }
-    }
-
 }
