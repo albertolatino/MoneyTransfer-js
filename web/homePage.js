@@ -1,7 +1,7 @@
 (function () { // avoid variables ending up in the global scope
 
     // page components
-    let transactionsList, accountsList, wizard, contactList,
+    var transactionsList, accountsList, wizard, contactManager, contacts,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -48,7 +48,7 @@
                             if (next) next(); // show the default element of the list if present
                         }
                     } else {
-                        self.alert.textContent = message;
+                        //self.alert.textContent = message;
                     }
                 }
             );
@@ -200,7 +200,7 @@
                         }
                     }
                     if (valid) {
-                        this.changeStep(e.target.parentNode, (e.target.className === "next") ? e.target.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
+                        this.changeStep(e.target.closest("fieldset"), (e.target.className === "next") ? e.target.parentNode.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
                     }
                 }, false);
             });
@@ -222,10 +222,10 @@
                     makeCall("POST", 'CreateTransaction', e.target.closest("form"),
                         function (req) {
                             if (req.readyState == XMLHttpRequest.DONE) {
-                                var message = req.responseText; // error message or mission id
+                                var message = req.responseText; // error message or account id
                                 if (req.status == 200) {
                                     document.getElementById("addtocontacts").style.visibility = "visible";
-                                    orchestrator.refresh(message); // id of the new mission passed
+                                    orchestrator.refresh(message); // id of the transaction origin account
                                 } else {
                                     self.alert.textContent = message;
                                     self.reset();
@@ -257,30 +257,34 @@
     }
 
 
-    function ContactList(_alert) {
+    function ContactManager(_alert) {
 
         this.alert = _alert;
         const self = this;
 
+
+
         this.registerEvents = function (orchestrator) {
-            registerAddContactEvent(orchestrator, "true");
-            registerAddContactEvent(orchestrator, "false");
+            registerAddContactEventTrue(orchestrator);
+            registerAddContactEventFalse();
         }
 
-        function registerAddContactEvent(orchestrator, boolString) {
+        function registerAddContactEventTrue(orchestrator) {
 
-            document.getElementById(boolString + "_button").addEventListener('click', () => {
+            document.getElementById("true_button").addEventListener('click', () => {
 
-                makeCall("POST", 'AddToContacts?addToContacts=' + boolString, null,
+                makeCall("POST", 'AddToContacts?addToContacts=true', null,
                     function (req) {
                         if (req.readyState === XMLHttpRequest.DONE) {
                             var message = req.responseText; // error message or mission id
                             if (req.status === 200) {
                                 document.getElementById("addtocontacts").style.visibility = "hidden";
-                                //orchestrator.refresh(message); //TODO AL MAX FAI REFRESH PERCHé VUOI FAR VEDERE NUOVA LISTA CONTATTI
+                                orchestrator.refresh(message);//todo
                                 self.alert.textContent = "User successfully added!"
-
+                                self.updateContacts();
                             } else {
+                                document.getElementById("addtocontacts").style.visibility = "hidden";
+
                                 self.alert.textContent = message;
                                 self.reset();
                             }
@@ -290,8 +294,16 @@
             });
         }
 
+        function registerAddContactEventFalse() {
 
-        this.getContacts = function () {
+            document.getElementById("false_button").addEventListener('click', () => {
+                document.getElementById("addtocontacts").style.visibility = "hidden";
+            });
+        }
+
+
+
+        this.updateContacts = function () {
             const self = this;
             makeCall("GET", "AddToContacts", null,
                 function (req) {
@@ -300,27 +312,24 @@
                         if (req.status === 200) {
                             const contactsObj = JSON.parse(req.responseText);
                             if(contactsObj.length > 0) {
-                                var contacts = [];
+
+                                contacts = [];
 
                                 for(let i = 0; i < contactsObj.length; i++) {
                                     contacts.push(contactsObj[i].contactUsername);
                                 }
-                                var usernameInput = document.getElementById("recipient-username");
-                                autocomplete(usernameInput, contacts);
                             }
 
                         }
                     } else {
-                        //self.alert.textContent = message;
+                        self.alert.textContent = message;
                     }
                 }
             );
         };
 
 
-        this.getContacts();
-
-        function autocomplete(inp, arr) {
+        function autocomplete(inp) {
             /*the autocomplete function takes two arguments,
             the text field element and an array of possible autocompleted values:*/
             var currentFocus;
@@ -341,16 +350,16 @@
                 /*append the DIV element as a child of the autocomplete container:*/
                 this.parentNode.appendChild(a);
                 /*for each item in the array...*/
-                for (i = 0; i < arr.length; i++) {
+                for (i = 0; i < contacts.length; i++) {
                     /*check if the item starts with the same letters as the text field value:*/
-                    if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+                    if (contacts[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
                         /*create a DIV element for each matching element:*/
                         b = document.createElement("DIV");
                         /*make the matching letters bold:*/
-                        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-                        b.innerHTML += arr[i].substr(val.length);
+                        b.innerHTML = "<strong>" + contacts[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += contacts[i].substr(val.length);
                         /*insert a input field that will hold the current array item's value:*/
-                        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        b.innerHTML += "<input type='hidden' value='" + contacts[i] + "'>";
                         /*execute a function when someone clicks on the item value (DIV element):*/
                         b.addEventListener("click", function (e) {
                             /*insert the value for the autocomplete text field:*/
@@ -424,6 +433,12 @@
             });
         }
 
+        this.updateContacts();
+
+        const usernameInput = document.getElementById("recipient-username");
+        autocomplete(usernameInput);
+
+
     }
 
 
@@ -449,8 +464,8 @@
             wizard = new Wizard(document.getElementById("id_createtransactionform"), alertContainer);
             wizard.registerEvents(this);
 
-            contactList = new ContactList(alertContainer);
-            contactList.registerEvents(this);
+            contactManager = new ContactManager(alertContainer);
+            contactManager.registerEvents(this);
 
             document.querySelector("a[href='Logout']").addEventListener('click', () => {
                 window.sessionStorage.removeItem('username');

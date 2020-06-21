@@ -38,10 +38,11 @@ input[type=text] {
 	background-color: #f1f1f1;
 	width: 300px;
 }
+/*
 input[type=submit] {
 	background-color: DodgerBlue;
 	color: #fff;
-}
+}*/
 .autocomplete-items {
 	position: absolute;
 	border: 1px solid #d4d4d4;

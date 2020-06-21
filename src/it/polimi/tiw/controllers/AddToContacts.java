@@ -3,10 +3,8 @@ package it.polimi.tiw.controllers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.polimi.tiw.beans.Contact;
-import it.polimi.tiw.beans.Transaction;
 import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.ContactDAO;
-import it.polimi.tiw.dao.TransactionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -40,10 +38,7 @@ public class AddToContacts extends HttpServlet {
             throws IOException {
         // obtain and escape params
 
-
-        String boolString = StringEscapeUtils.escapeJava(request.getParameter("addToContacts"));
-
-        String owner = ((User)request.getSession().getAttribute("user")).getUsername();
+        String owner = ((User) request.getSession().getAttribute("user")).getUsername();
         String contactUsername = (String) getServletContext().getAttribute("contactUsername");
         Integer contactAccount = (Integer) getServletContext().getAttribute("contactAccount");
 
@@ -56,34 +51,29 @@ public class AddToContacts extends HttpServlet {
             return;
         }
 
-        if (boolString.equals("true")) {
 
-            // query db to authenticate for user
-            ContactDAO contactDAO = new ContactDAO(connection);
-            try {
+        // query db to authenticate for user
+        ContactDAO contactDAO = new ContactDAO(connection);
+        try {
 
-                if(owner.equals(contactUsername)) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().println("You cannot register yourself");
-                } else if (contactDAO.existingContact(owner, contactUsername, contactAccount)) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().println("This contact is already registered");
-                } else {
-                    contactDAO.registerContact(owner, contactUsername, contactAccount);
-                    response.setStatus(HttpServletResponse.SC_OK);
-                }
-
-            } catch (SQLException e) {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().println("Internal server error, retry later");
-                return;
+            if (owner.equals(contactUsername)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().println("You cannot register yourself");
+            } else if (contactDAO.existingContact(owner, contactUsername, contactAccount)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().println("This contact is already registered");
+            } else {
+                contactDAO.registerContact(owner, contactUsername, contactAccount);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().println();
             }
-        }
-        // If the user exists, add info to the session and go to home page, otherwise
-        // return an error status code and message
-        //todo send confirmation
-    }
 
+        } catch (SQLException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println("Internal server error, retry later");
+        }
+
+    }
 
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -97,7 +87,7 @@ public class AddToContacts extends HttpServlet {
             return;
         }
 
-        String owner = ((User)request.getSession().getAttribute("user")).getUsername();
+        String owner = ((User) request.getSession().getAttribute("user")).getUsername();
 
         ContactDAO contactDAO = new ContactDAO(connection);
         List<Contact> contacts;

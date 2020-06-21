@@ -128,8 +128,9 @@ public class CreateTransaction extends HttpServlet {
                 //todo confirmation
                 //origin = accountDAO.findAccountById(originAccountId);
                 //destination = accountDAO.findAccountById(destinationAccountId);
+                response.getWriter().print(originAccountId);
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().println(originAccountId);
+
             } catch (SQLException e) {
                 //e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
