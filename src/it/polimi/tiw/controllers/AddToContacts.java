@@ -42,9 +42,6 @@ public class AddToContacts extends HttpServlet {
         String contactUsername = (String) getServletContext().getAttribute("contactUsername");
         Integer contactAccount = (Integer) getServletContext().getAttribute("contactAccount");
 
-        System.out.println(contactUsername);
-        System.out.println(contactAccount);
-
         if (owner == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().println("Error in saving contacts");
@@ -65,7 +62,6 @@ public class AddToContacts extends HttpServlet {
             } else {
                 contactDAO.registerContact(owner, contactUsername, contactAccount);
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().println();
             }
 
         } catch (SQLException e) {

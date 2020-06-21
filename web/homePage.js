@@ -168,14 +168,14 @@
 
         }
 
-        //todo quando facciamo transaction autoclick su "details" di account che fa transaction per refresh lista di transactions
+        /*//todo quando facciamo transaction autoclick su "show" di account che fa transaction per refresh lista di transactions
         this.autoclick = function (accountId) {
             var e = new Event("click");
             var selector = "a[accountid='" + accountId + "']";
             var anchorToClick =
                 (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
             if (anchorToClick) anchorToClick.dispatchEvent(e);
-        }
+        }*/
 
     }
 
@@ -190,6 +190,7 @@
                 b.addEventListener("click", (e) => { // arrow function preserve the visibility of this
                     let eventfieldset = e.target.closest("fieldset"),
                         valid = true;
+                    var alertMessage = "Invalid form input";
                     if (e.target.className == "next") {
                         for (i = 0; i < eventfieldset.elements.length; i++) {
                             if (!eventfieldset.elements[i].checkValidity()) {
@@ -201,7 +202,8 @@
                     }
                     if (valid) {
                         this.changeStep(e.target.closest("fieldset"), (e.target.className === "next") ? e.target.parentNode.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
-                    }
+                    } else
+                        this.alert(alertMessage);
                 }, false);
             });
 
@@ -221,9 +223,9 @@
                     var self = this;
                     makeCall("POST", 'CreateTransaction', e.target.closest("form"),
                         function (req) {
-                            if (req.readyState == XMLHttpRequest.DONE) {
+                            if (req.readyState === XMLHttpRequest.DONE) {
                                 var message = req.responseText; // error message or account id
-                                if (req.status == 200) {
+                                if (req.status === 200) {
                                     document.getElementById("addtocontacts").style.visibility = "visible";
                                     orchestrator.refresh(message); // id of the transaction origin account
                                 } else {
@@ -254,6 +256,29 @@
             origin.hidden = true;
             destination.hidden = false;
         }
+
+
+        function validateForm(e) {
+            let eventfieldset = e.target.closest("fieldset"),
+                valid = true;
+            var alertMessage = "Invalid form input";
+
+            for (i = 0; i < eventfieldset.elements.length; i++) {
+                var element = eventfieldset.elements[i];
+                if (element.id === "id_amount" && element.value) {
+                    eventfieldset.elements[i].reportValidity();
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                this.changeStep(e.target.closest("fieldset"), (e.target.className === "next") ? e.target.parentNode.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
+            } else
+                this.alert(alertMessage);
+
+        }
+
     }
 
 
@@ -261,7 +286,6 @@
 
         this.alert = _alert;
         const self = this;
-
 
 
         this.registerEvents = function (orchestrator) {
@@ -273,18 +297,16 @@
 
             document.getElementById("true_button").addEventListener('click', () => {
 
-                makeCall("POST", 'AddToContacts?addToContacts=true', null,
+                makeCall("POST", 'AddToContacts', null,
                     function (req) {
                         if (req.readyState === XMLHttpRequest.DONE) {
                             var message = req.responseText; // error message or mission id
+                            document.getElementById("addtocontacts").style.visibility = "hidden";
                             if (req.status === 200) {
-                                document.getElementById("addtocontacts").style.visibility = "hidden";
-                                orchestrator.refresh(message);//todo
+                                orchestrator.refresh(message);
                                 self.alert.textContent = "User successfully added!"
                                 self.updateContacts();
                             } else {
-                                document.getElementById("addtocontacts").style.visibility = "hidden";
-
                                 self.alert.textContent = message;
                                 self.reset();
                             }
@@ -302,7 +324,6 @@
         }
 
 
-
         this.updateContacts = function () {
             const self = this;
             makeCall("GET", "AddToContacts", null,
@@ -311,11 +332,11 @@
                     if (req.readyState === 4) {
                         if (req.status === 200) {
                             const contactsObj = JSON.parse(req.responseText);
-                            if(contactsObj.length > 0) {
+                            if (contactsObj.length > 0) {
 
                                 contacts = [];
 
-                                for(let i = 0; i < contactsObj.length; i++) {
+                                for (let i = 0; i < contactsObj.length; i++) {
                                     contacts.push(contactsObj[i].contactUsername);
                                 }
                             }

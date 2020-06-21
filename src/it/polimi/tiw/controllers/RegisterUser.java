@@ -62,7 +62,7 @@ public class RegisterUser extends HttpServlet {
                 userDao.registerUser(username, email, pwd, name, surname);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                response.getWriter().println(username);
+                response.getWriter().print(username);
                 response.setStatus(HttpServletResponse.SC_OK);
             }
 

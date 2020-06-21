@@ -113,7 +113,7 @@ public class CreateTransaction extends HttpServlet {
         } else if (!usernameOwnsAccount) {
             errorMsg = "Username doesn't match the selected account";
         } else if (origin.getAccountId() == destination.getAccountId()) {
-            errorMsg = "Origin and destination account must be different";
+            errorMsg = "Origin and destination accounts must be different";
         } else if (amount > origin.getBalance()) {
             errorMsg = "Insufficient funds for this transaction";
         }
@@ -125,9 +125,6 @@ public class CreateTransaction extends HttpServlet {
             // Create transaction in DB
             try {
                 transactionDAO.createTransaction(originAccountId, destinationAccountId, amount, description);
-                //todo confirmation
-                //origin = accountDAO.findAccountById(originAccountId);
-                //destination = accountDAO.findAccountById(destinationAccountId);
                 response.getWriter().print(originAccountId);
                 response.setStatus(HttpServletResponse.SC_OK);
 
