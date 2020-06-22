@@ -46,7 +46,7 @@ public class GetAccountData extends HttpServlet {
         List<Account> accounts;
         //todo account.user != user, security bug
         try {
-            accounts = accountDAO.findAccountsByUser(user.getUserId());
+            accounts = accountDAO.findAccountsByUser(user.getUsername());
         } catch (SQLException e) {
             // for debugging only e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

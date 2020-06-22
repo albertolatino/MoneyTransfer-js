@@ -18,17 +18,17 @@ public class AccountDAO {
     }
 
 
-    public List<Account> findAccountsByUser(int userId) throws SQLException {
+    public List<Account> findAccountsByUser(String username) throws SQLException {
 
         List<Account> accounts = new ArrayList<>();
 
-        String query = "SELECT * from account where userId = ? ORDER BY balance DESC";
+        String query = "SELECT * from account where username = ? ORDER BY balance DESC";
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
-            pstatement.setInt(1, userId);
+            pstatement.setString(1, username);
             try (ResultSet result = pstatement.executeQuery();) {
                 while (result.next()) {
                     Account account = new Account();//Create java Bean
-                    account.setUserId(result.getInt("userId"));
+                    account.setUsername(result.getString("username"));
                     account.setAccountId(result.getInt("accountId"));
                     account.setBalance((result.getDouble("balance")));
                     accounts.add(account);
@@ -50,7 +50,7 @@ public class AccountDAO {
             try (ResultSet result = pstatement.executeQuery()) {
                 result.first();
                 account = new Account();
-                account.setUserId(result.getInt("userId"));
+                account.setUsername(result.getString("username"));
                 account.setAccountId(result.getInt("accountId"));
                 account.setBalance((result.getDouble("balance")));
             } catch (SQLException e) {

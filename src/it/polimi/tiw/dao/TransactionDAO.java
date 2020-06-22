@@ -84,7 +84,7 @@ public class TransactionDAO {
      * @throws SQLException
      */
     public boolean checkAccountOwner(String username, int accountId) throws SQLException {
-        String query = "SELECT * FROM user JOIN account ON user.userId = account.userId WHERE user.username = ? AND account.accountId = ?";
+        String query = "SELECT * FROM account WHERE username = ? AND accountId = ?";
 
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setString(1, username);
