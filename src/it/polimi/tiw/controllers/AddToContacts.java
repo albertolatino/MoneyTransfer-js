@@ -61,6 +61,7 @@ public class AddToContacts extends HttpServlet {
                 response.getWriter().println("This contact is already registered");
             } else {
                 contactDAO.registerContact(owner, contactUsername, contactAccount);
+                response.getWriter().println("Contact successfully added");
                 response.setStatus(HttpServletResponse.SC_OK);
             }
 
@@ -89,7 +90,6 @@ public class AddToContacts extends HttpServlet {
         List<Contact> contacts;
         try {
             contacts = contactDAO.getContactList(owner);
-            response.setStatus(HttpServletResponse.SC_OK);
         } catch (SQLException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -103,6 +103,7 @@ public class AddToContacts extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(json);
+        response.setStatus(HttpServletResponse.SC_OK);
 
     }
 

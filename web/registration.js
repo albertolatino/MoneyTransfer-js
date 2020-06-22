@@ -14,7 +14,7 @@
                         switch (req.status) {
 
                             case 200:
-                                sessionStorage.setItem('username', message);
+                                //sessionStorage.setItem('username', message);
                                 document.getElementById("successfulRegistration").style.visibility = "visible";
                                 break;
                             case 400: // bad request
@@ -50,8 +50,6 @@
             document.getElementById('message').innerHTML = 'Not matching';
             //document.getElementById('registrationButton').disabled = true;
         }
-
-
     });
 
     document.getElementById("email_id").addEventListener('keyup', () => {
@@ -67,7 +65,5 @@
             document.getElementById('validate_email_id').innerHTML = 'Invalid Email';
         }
     });
-
-
 
 })();

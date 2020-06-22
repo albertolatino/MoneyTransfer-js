@@ -1,7 +1,7 @@
 (function () { // avoid variables ending up in the global scope
 
     // page components
-    var transactionsList, accountsList, wizard, contactManager, contacts,
+    var transactionsList, accountsList, wizard, contactManager, contacts, accounts, contactsObj,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -168,15 +168,6 @@
 
         }
 
-        /*//todo quando facciamo transaction autoclick su "show" di account che fa transaction per refresh lista di transactions
-        this.autoclick = function (accountId) {
-            var e = new Event("click");
-            var selector = "a[accountid='" + accountId + "']";
-            var anchorToClick =
-                (accountId) ? document.querySelector(selector) : this.listcontainerbody.querySelectorAll("a")[0];
-            if (anchorToClick) anchorToClick.dispatchEvent(e);
-        }*/
-
     }
 
     function Wizard(wizardId, alert) {
@@ -201,7 +192,7 @@
                         }
                     }
                     if (valid) {
-                        this.changeStep(e.target.closest("fieldset"), (e.target.className === "next") ? e.target.parentNode.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
+                        this.changeStep(e.target.closest("fieldset"), (e.target.className === "next") ? e.target.parentNode.nextElementSibling : e.target.parentNode.previousElementSibling);
                     } else
                         this.alert(alertMessage);
                 }, false);
@@ -286,6 +277,10 @@
 
         this.alert = _alert;
         const self = this;
+        let counter = 0;
+        const usernameInput = document.getElementById("recipient-username");
+        const accountsInput = document.getElementById("recipient-accountid");
+
 
 
         this.registerEvents = function (orchestrator) {
@@ -296,15 +291,14 @@
         function registerAddContactEventTrue(orchestrator) {
 
             document.getElementById("true_button").addEventListener('click', () => {
-
                 makeCall("POST", 'AddToContacts', null,
                     function (req) {
                         if (req.readyState === XMLHttpRequest.DONE) {
-                            var message = req.responseText; // error message or mission id
+                            var message = req.responseText; // error message
                             document.getElementById("addtocontacts").style.visibility = "hidden";
                             if (req.status === 200) {
-                                orchestrator.refresh(message);
-                                self.alert.textContent = "User successfully added!"
+                                //orchestrator.refresh(message);
+                                self.alert.textContent = message;
                                 self.updateContacts();
                             } else {
                                 self.alert.textContent = message;
@@ -317,7 +311,6 @@
         }
 
         function registerAddContactEventFalse() {
-
             document.getElementById("false_button").addEventListener('click', () => {
                 document.getElementById("addtocontacts").style.visibility = "hidden";
             });
@@ -331,16 +324,16 @@
                     const message = req.responseText;
                     if (req.readyState === 4) {
                         if (req.status === 200) {
-                            const contactsObj = JSON.parse(req.responseText);
+                            contactsObj = JSON.parse(req.responseText);
                             if (contactsObj.length > 0) {
 
-                                contacts = [];
-
-                                for (let i = 0; i < contactsObj.length; i++) {
-                                    contacts.push(contactsObj[i].contactUsername);
+                                if (counter === 0) {
+                                    autocomplete(updateContactStrings, usernameInput);
+                                    autocomplete(updateAccounts, accountsInput);
+                                    counter++;
                                 }
-                            }
 
+                            }
                         }
                     } else {
                         self.alert.textContent = message;
@@ -350,12 +343,35 @@
         };
 
 
-        function autocomplete(inp) {
+        function updateAccounts() {
+            accounts = [];
+            for (let i = 0; i < contactsObj.length; i++) {
+                if (contactsObj[i].contactUsername === usernameInput.value) {
+                    for (let j = 0; j < contactsObj[i].contactAccounts.length; j++) {
+                        accounts.push(contactsObj[i].contactAccounts[j].toString());
+                    }
+                }
+            }
+            return accounts;
+        }
+
+        function updateContactStrings() {
+            contacts = [];
+            for (let i = 0; i < contactsObj.length; i++) {
+                contacts.push(contactsObj[i].contactUsername);
+            }
+            return contacts;
+        }
+
+        function autocomplete(updateArray, inp) {
             /*the autocomplete function takes two arguments,
             the text field element and an array of possible autocompleted values:*/
             var currentFocus;
             /*execute a function when someone writes in the text field:*/
             inp.addEventListener("input", function (e) {
+
+                var array = updateArray();
+
                 var a, b, i, val = this.value;
                 /*close any already open lists of autocompleted values*/
                 closeAllLists();
@@ -371,16 +387,16 @@
                 /*append the DIV element as a child of the autocomplete container:*/
                 this.parentNode.appendChild(a);
                 /*for each item in the array...*/
-                for (i = 0; i < contacts.length; i++) {
+                for (i = 0; i < array.length; i++) {
                     /*check if the item starts with the same letters as the text field value:*/
-                    if (contacts[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+                    if (array[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
                         /*create a DIV element for each matching element:*/
                         b = document.createElement("DIV");
                         /*make the matching letters bold:*/
-                        b.innerHTML = "<strong>" + contacts[i].substr(0, val.length) + "</strong>";
-                        b.innerHTML += contacts[i].substr(val.length);
+                        b.innerHTML = "<strong>" + array[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += array[i].substr(val.length);
                         /*insert a input field that will hold the current array item's value:*/
-                        b.innerHTML += "<input type='hidden' value='" + contacts[i] + "'>";
+                        b.innerHTML += "<input type='hidden' value='" + array[i] + "'>";
                         /*execute a function when someone clicks on the item value (DIV element):*/
                         b.addEventListener("click", function (e) {
                             /*insert the value for the autocomplete text field:*/
@@ -454,11 +470,8 @@
             });
         }
 
+
         this.updateContacts();
-
-        const usernameInput = document.getElementById("recipient-username");
-        autocomplete(usernameInput);
-
 
     }
 
