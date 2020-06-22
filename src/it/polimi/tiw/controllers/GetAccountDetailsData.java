@@ -54,8 +54,6 @@ public class GetAccountDetailsData extends HttpServlet {
         request.getSession().setAttribute("accountid", accountId);
 
 
-        //todo passare account a questa servlet in modo che venga passato a template account details
-        //User user = (User) session.getAttribute("user");
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         List<Transaction> transactions;
         try {

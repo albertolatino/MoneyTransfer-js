@@ -93,8 +93,8 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
-        getServletContext().setAttribute("contactUsername", destinationUsername);
-        getServletContext().setAttribute("contactAccount", destinationAccountId);
+        request.getSession().setAttribute("contactUsername", destinationUsername);
+        request.getSession().setAttribute("contactAccount", destinationAccountId);
 
 
         /*

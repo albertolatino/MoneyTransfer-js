@@ -37,10 +37,18 @@ public class AddToContacts extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         // obtain and escape params
+        String loginpath = getServletContext().getContextPath() + "/index.html";
+        HttpSession session = request.getSession();
+        User user = (User)session.getAttribute("user");
+        if (session.isNew() || user == null) {
+            response.sendRedirect(loginpath);
+            return;
+        }
 
-        String owner = ((User) request.getSession().getAttribute("user")).getUsername();
-        String contactUsername = (String) getServletContext().getAttribute("contactUsername");
-        Integer contactAccount = (Integer) getServletContext().getAttribute("contactAccount");
+
+        String owner = user.getUsername();
+        String contactUsername = (String) request.getSession().getAttribute("contactUsername");
+        Integer contactAccount = (Integer) request.getSession().getAttribute("contactAccount");
 
         if (owner == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

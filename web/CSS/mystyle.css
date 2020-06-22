@@ -37,7 +37,18 @@ input {
 input[type=text] {
 	background-color: #f1f1f1;
 	width: 300px;
+	margin-top: 15px;
 }
+input[type=number] {
+	background-color: #f1f1f1;
+	width: 300px;
+	margin-top: 15px;
+}
+input[type=button] {
+	background-color: #f1f1f1;
+	margin-top: 10px;
+}
+
 /*
 input[type=submit] {
 	background-color: DodgerBlue;
@@ -68,4 +79,8 @@ input[type=submit] {
 	/*when navigating through the items using the arrow keys:*/
 	background-color: DodgerBlue !important;
 	color: #ffffff;
+}
+
+#recipient-accountid{
+	margin-top:10px;
 }
