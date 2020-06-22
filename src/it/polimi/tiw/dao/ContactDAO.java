@@ -1,8 +1,6 @@
 package it.polimi.tiw.dao;
 
 import it.polimi.tiw.beans.Contact;
-import it.polimi.tiw.beans.Transaction;
-import it.polimi.tiw.beans.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,7 +60,7 @@ public class ContactDAO {
 
     public void registerContact(String ownerUsername, String contactUsername, int contactAccount) throws SQLException {
 
-        String registerQuery = "INSERT into contact (contactId, ownerUsername, contactUsername, contactAccount) VALUES(NULL, ?, ?, ?)";
+        String registerQuery = "INSERT into contact (ownerUsername, contactUsername, contactAccount) VALUES(?, ?, ?)";
 
         try (PreparedStatement pstatement = connection.prepareStatement(registerQuery)) {
             pstatement.setString(1, ownerUsername);
