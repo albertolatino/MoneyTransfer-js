@@ -34,7 +34,6 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>LoginChecker</filter-name>
-        <url-pattern>/CloseMission</url-pattern>
         <url-pattern>/CreateTransaction</url-pattern>
         <url-pattern>/GetAccountDetailsData</url-pattern>
         <url-pattern>/GetAccountData</url-pattern>

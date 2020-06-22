@@ -51,7 +51,6 @@ public class GetAccountDetailsData extends HttpServlet {
             response.getWriter().println("Incorrect param values");
             return;
         }
-        request.getSession().setAttribute("accountid", accountId);
 
 
         TransactionDAO transactionDAO = new TransactionDAO(connection);

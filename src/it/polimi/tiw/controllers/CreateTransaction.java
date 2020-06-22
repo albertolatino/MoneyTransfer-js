@@ -1,6 +1,7 @@
 package it.polimi.tiw.controllers;
 
 import it.polimi.tiw.beans.Account;
+import it.polimi.tiw.beans.User;
 import it.polimi.tiw.dao.AccountDAO;
 import it.polimi.tiw.dao.TransactionDAO;
 import it.polimi.tiw.utils.ConnectionHandler;
@@ -36,7 +37,8 @@ public class CreateTransaction extends HttpServlet {
             throws IOException {
         // If the user is not logged in (not present in session) redirect to the login
         HttpSession session = request.getSession();
-        if (session.isNew() || session.getAttribute("user") == null) {
+        User user = (User) session.getAttribute("user");
+        if (session.isNew() || user == null) {
             String loginpath = getServletContext().getContextPath() + "/index.html";
             response.sendRedirect(loginpath);
             return;
@@ -50,11 +52,13 @@ public class CreateTransaction extends HttpServlet {
         Integer destinationAccountId = null;
         Double amount = null;
         String description = null;
+        Integer originAccountId = null;
 
         try {
 
             recipientAccount = StringEscapeUtils.escapeJava(request.getParameter("recipient-accountid"));
             destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
+            originAccountId = Integer.parseInt(request.getParameter("accountid"));
             destinationAccountId = Integer.parseInt(recipientAccount);
             amount = Double.parseDouble(request.getParameter("amount"));
             description = StringEscapeUtils.escapeJava(request.getParameter("description"));
@@ -70,8 +74,6 @@ public class CreateTransaction extends HttpServlet {
             return;
         }
 
-        //todo rivedere attributo su session (dispatcher)
-        Integer originAccountId = (Integer) request.getSession().getAttribute("accountid");
 
         //account id origin (mine) + balance
         //account id destination + balance
@@ -79,13 +81,16 @@ public class CreateTransaction extends HttpServlet {
         TransactionDAO transactionDAO = new TransactionDAO(connection);
         Account origin;
         Account destination;
-        boolean usernameOwnsAccount;
+        boolean originUserOwnsAccount,destinationUserOwnsAccount;
         try {
+
+            originUserOwnsAccount = accountDAO.userOwnsAccount(user.getUsername(), originAccountId);
+            destinationUserOwnsAccount = accountDAO.userOwnsAccount(destinationUsername, destinationAccountId);
+
             origin = accountDAO.findAccountById(originAccountId);
             //destination returns null if recipient account doesn't exist
             destination = accountDAO.findAccountById(destinationAccountId);
 
-            usernameOwnsAccount = transactionDAO.checkAccountOwner(destinationUsername, destinationAccountId);
         } catch (SQLException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -110,7 +115,9 @@ public class CreateTransaction extends HttpServlet {
 
         if (destination == null) {
             errorMsg = "Destination account doesn't exist";
-        } else if (!usernameOwnsAccount) {
+        } else if (!originUserOwnsAccount) {
+            errorMsg = "You don't own the origin account";
+        } else if (!destinationUserOwnsAccount) {
             errorMsg = "Username doesn't match the selected account";
         } else if (origin.getAccountId() == destination.getAccountId()) {
             errorMsg = "Origin and destination accounts must be different";

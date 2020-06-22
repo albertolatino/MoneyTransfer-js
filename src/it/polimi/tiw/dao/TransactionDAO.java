@@ -75,25 +75,5 @@ public class TransactionDAO {
         }
     }
 
-    /**
-     * Checks that username owns destination account.
-     *
-     * @param username
-     * @param accountId
-     * @return
-     * @throws SQLException
-     */
-    public boolean checkAccountOwner(String username, int accountId) throws SQLException {
-        String query = "SELECT * FROM account WHERE username = ? AND accountId = ?";
-
-        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
-            pstatement.setString(1, username);
-            pstatement.setInt(2, accountId);
-
-            try (ResultSet result = pstatement.executeQuery()) {
-                return result.next();
-            }
-        }
-    }
 
 }

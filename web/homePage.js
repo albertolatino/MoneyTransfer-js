@@ -1,7 +1,8 @@
 (function () { // avoid variables ending up in the global scope
 
     // page components
-    var transactionsList, accountsList, wizard, contactManager, contacts, accounts, contactsObj,
+    var transactionsList, accountsList, wizard, contactManager,
+        contacts, accounts, contactsObj, currentAccount,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -73,11 +74,10 @@
                 detailsCell.appendChild(anchor);
                 linkText = document.createTextNode("Show");
                 anchor.appendChild(linkText);
-                //anchor.missionid = account.id; // make list item clickable
                 anchor.setAttribute('accountid', account.accountId); // set a custom HTML attribute
                 anchor.addEventListener("click", (e) => {
                     // dependency via module parameter
-                    transactionsList.show(undefined, e.target.getAttribute("accountid")); // the list must know the details container
+                    transactionsList.show(e.target.getAttribute("accountid")); // the list must know the details container
                 }, false);
                 anchor.href = "#";
                 row.appendChild(detailsCell);
@@ -102,13 +102,15 @@
         this.alert = _alert;
         this.listcontainer = _listcontainer;
         this.listcontainerbody = _listcontainerbody;
+        var self = this;
 
         this.reset = function () {
             this.listcontainer.style.visibility = "hidden";
         }
 
-        this.show = function (next, accountid) {
-            var self = this;
+        this.show = function (accountid) {
+            currentAccount = accountid;
+
             makeCall("GET", "GetAccountDetailsData?accountid=" + accountid, null,
                 function (req) {
                     if (req.readyState == 4) {
@@ -121,7 +123,6 @@
                                 return;
                             }
                             self.update(transactionsToShow); // self visible by closure
-                            if (next) next(); // show the default element of the list if present
                         } else {
                             self.alert.textContent = message;
                         }
@@ -212,7 +213,7 @@
 
                 if (valid) {
                     var self = this;
-                    makeCall("POST", 'CreateTransaction', e.target.closest("form"),
+                    makeCall("POST", 'CreateTransaction?accountid=' + currentAccount, e.target.closest("form"),
                         function (req) {
                             if (req.readyState === XMLHttpRequest.DONE) {
                                 var message = req.responseText; // error message or account id
@@ -250,7 +251,7 @@
         }
 
 
-        function validateForm(e) {
+/*        function validateForm(e) {
             let eventfieldset = e.target.closest("fieldset"),
                 valid = true;
             var alertMessage = "Invalid form input";
@@ -269,7 +270,7 @@
             } else
                 this.alert(alertMessage);
 
-        }
+        }*/
 
     }
 
@@ -506,12 +507,12 @@
         };
 
 
-        this.refresh = function (currentAccount) {
+        this.refresh = function (account) {
             alertContainer.textContent = "";
             accountsList.reset();
             accountsList.show(function () {
-                accountsList.autoclick(currentAccount);
-            }, currentAccount); // closure preserves visibility of this
+                accountsList.autoclick(account);
+            }, account); // closure preserves visibility of this
             wizard.reset();
         };
     }

@@ -40,7 +40,6 @@ public class AccountDAO {
 
 
     public Account findAccountById(int accountId) throws SQLException {
-
         Account account; //Create java Bean
 
         String query = "SELECT * from account where accountId = ?";
@@ -59,7 +58,21 @@ public class AccountDAO {
             }
         }
         return account;
+    }
+
+    public boolean userOwnsAccount(String username, int accountId) throws SQLException {
+        String query = "SELECT * FROM account  WHERE username = ? AND accountId = ?";
+        try (PreparedStatement pstatement = connection.prepareStatement(query)) {
+
+            pstatement.setString(1, username);
+            pstatement.setInt(2, accountId);
+
+            try (ResultSet result = pstatement.executeQuery()) {
+                return result.next();
+            }
+        }
 
     }
+
 
 }
