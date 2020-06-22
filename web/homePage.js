@@ -46,9 +46,9 @@
                             }
                             self.update(accountsToShow); // self visible by closure
                             if (next) next(); // show the default element of the list if present
+                        } else {
+                            self.alert.textContent = message;
                         }
-                    } else {
-                        //self.alert.textContent = message;
                     }
                 }
             );
@@ -122,9 +122,9 @@
                             }
                             self.update(transactionsToShow); // self visible by closure
                             if (next) next(); // show the default element of the list if present
+                        } else {
+                            self.alert.textContent = message;
                         }
-                    } else {
-                        self.alert.textContent = message;
                     }
                 }
             );
@@ -282,7 +282,6 @@
         const accountsInput = document.getElementById("recipient-accountid");
 
 
-
         this.registerEvents = function (orchestrator) {
             registerAddContactEventTrue(orchestrator);
             registerAddContactEventFalse();
@@ -332,11 +331,10 @@
                                     autocomplete(updateAccounts, accountsInput);
                                     counter++;
                                 }
-
                             }
+                        } else {
+                            self.alert.textContent = message;
                         }
-                    } else {
-                        self.alert.textContent = message;
                     }
                 }
             );
