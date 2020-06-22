@@ -47,7 +47,6 @@ public class CreateTransaction extends HttpServlet {
         // Get and parse all parameters from request
         boolean isBadRequest = false;
 
-        String recipientAccount = null;
         String destinationUsername = null;
         Integer destinationAccountId = null;
         Double amount = null;
@@ -56,10 +55,9 @@ public class CreateTransaction extends HttpServlet {
 
         try {
 
-            recipientAccount = StringEscapeUtils.escapeJava(request.getParameter("recipient-accountid"));
             destinationUsername = StringEscapeUtils.escapeJava(request.getParameter("recipient-username"));
             originAccountId = Integer.parseInt(request.getParameter("accountid"));
-            destinationAccountId = Integer.parseInt(recipientAccount);
+            destinationAccountId = Integer.parseInt(request.getParameter("recipient-accountid"));
             amount = Double.parseDouble(request.getParameter("amount"));
             description = StringEscapeUtils.escapeJava(request.getParameter("description"));
 
@@ -97,10 +95,6 @@ public class CreateTransaction extends HttpServlet {
             response.getWriter().println("Couldn't retrieve accounts data");
             return;
         }
-
-        request.getSession().setAttribute("contactUsername", destinationUsername);
-        request.getSession().setAttribute("contactAccount", destinationAccountId);
-
 
         /*
         transaction checks:

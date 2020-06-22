@@ -3,6 +3,7 @@
     // page components
     var transactionsList, accountsList, wizard, contactManager,
         contacts, accounts, contactsObj, currentAccount,
+        contactUsername, contactAccount,
         pageOrchestrator = new PageOrchestrator(); // main controller
 
     window.addEventListener("load", () => {
@@ -212,6 +213,9 @@
                 }
 
                 if (valid) {
+                    contactUsername = document.querySelector("#recipient-username").value;
+                    contactAccount = document.querySelector("#recipient-accountid").value;
+
                     var self = this;
                     makeCall("POST", 'CreateTransaction?accountid=' + currentAccount, e.target.closest("form"),
                         function (req) {
@@ -292,7 +296,8 @@
         function registerAddContactEventTrue(orchestrator) {
 
             document.getElementById("true_button").addEventListener('click', () => {
-                makeCall("POST", 'AddToContacts', null,
+                makeCall("POST",
+                    'AddToContacts?contactUsername='+contactUsername +'&contactAccount='+contactAccount, null,
                     function (req) {
                         if (req.readyState === XMLHttpRequest.DONE) {
                             var message = req.responseText; // error message

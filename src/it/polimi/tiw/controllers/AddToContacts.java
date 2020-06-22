@@ -39,20 +39,35 @@ public class AddToContacts extends HttpServlet {
         // obtain and escape params
         String loginpath = getServletContext().getContextPath() + "/index.html";
         HttpSession session = request.getSession();
-        User user = (User)session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
         if (session.isNew() || user == null) {
             response.sendRedirect(loginpath);
             return;
         }
 
-
         String owner = user.getUsername();
-        String contactUsername = (String) request.getSession().getAttribute("contactUsername");
-        Integer contactAccount = (Integer) request.getSession().getAttribute("contactAccount");
 
         if (owner == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().println("Error in saving contacts");
+            return;
+        }
+
+        String contactUsername = null;
+        int contactAccount = -1;
+        boolean isBadRequest;
+        try {
+            contactUsername = StringEscapeUtils.escapeJava(request.getParameter("contactUsername"));
+            contactAccount = Integer.parseInt(request.getParameter("contactAccount"));
+
+            isBadRequest = contactUsername.isEmpty() || contactAccount == -1;
+        } catch (NumberFormatException | NullPointerException e) {
+            isBadRequest = true;
+            e.printStackTrace();
+        }
+        if (isBadRequest) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Incorrect or missing param values");
             return;
         }
 
@@ -88,12 +103,14 @@ public class AddToContacts extends HttpServlet {
         // If the user is not logged in (not present in session) redirect to the login
         String loginpath = getServletContext().getContextPath() + "/index.html";
         HttpSession session = request.getSession();
-        if (session.isNew() || session.getAttribute("user") == null) {
+        User user = (User) session.getAttribute("user");
+
+        if (session.isNew() || user == null) {
             response.sendRedirect(loginpath);
             return;
         }
 
-        String owner = ((User) request.getSession().getAttribute("user")).getUsername();
+        String owner = user.getUsername();
 
         ContactDAO contactDAO = new ContactDAO(connection);
         List<Contact> contacts;
