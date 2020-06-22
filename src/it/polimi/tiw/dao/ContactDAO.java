@@ -27,7 +27,7 @@ public class ContactDAO {
         Contact contact = null;
         String contactUsername;
 
-        String query = "SELECT contactUsername, contactAccount FROM contact  WHERE ownerUsername = ? ORDER BY contactUsername";
+        String query = "SELECT username, contactAccount FROM contact JOIN account ON contact.contactAccount = account.accountId WHERE ownerUsername = ? ORDER BY username";
 
         try (PreparedStatement pstatement = connection.prepareStatement(query)) {
             pstatement.setString(1, owner);
@@ -35,7 +35,7 @@ public class ContactDAO {
             try (ResultSet result = pstatement.executeQuery()) {
 
                 while (result.next()) {
-                     contactUsername = result.getString("contactUsername");
+                     contactUsername = result.getString("username");
 
                     if(contact != null && contactUsername.equals(contact.getContactUsername())) {
                         //only add his account
@@ -45,7 +45,7 @@ public class ContactDAO {
 
                         contact = new Contact(); //Create java Bean
                         contact.setOwnerUsername(owner);
-                        contact.setContactUsername(result.getString("contactUsername"));
+                        contact.setContactUsername(result.getString("username"));
                         contact.addContactAccounts(result.getInt("contactAccount"));
 
                         contacts.add(contact);
@@ -58,28 +58,26 @@ public class ContactDAO {
     }
 
 
-    public void registerContact(String ownerUsername, String contactUsername, int contactAccount) throws SQLException {
+    public void registerContact(String ownerUsername, int contactAccount) throws SQLException {
 
-        String registerQuery = "INSERT into contact (ownerUsername, contactUsername, contactAccount) VALUES(?, ?, ?)";
+        String registerQuery = "INSERT into contact (ownerUsername, contactAccount) VALUES(?, ?)";
 
         try (PreparedStatement pstatement = connection.prepareStatement(registerQuery)) {
             pstatement.setString(1, ownerUsername);
-            pstatement.setString(2, contactUsername);
-            pstatement.setInt(3, contactAccount);
+            pstatement.setInt(2, contactAccount);
 
             pstatement.executeUpdate();
         }
     }
 
 
-    public boolean existingContact(String ownerUsername, String contactUsername, int contactAccount) throws SQLException {
-        String existingContactQuery = "SELECT * FROM contact WHERE ownerUsername = ? AND contactUsername = ? AND contactAccount = ?";
+    public boolean existingContact(String ownerUsername, int contactAccount) throws SQLException {
+        String existingContactQuery = "SELECT * FROM contact WHERE ownerUsername = ? AND contactAccount = ?";
 
         try (PreparedStatement pstatement = connection.prepareStatement(existingContactQuery)) {
 
             pstatement.setString(1, ownerUsername);
-            pstatement.setString(2, contactUsername);
-            pstatement.setInt(3, contactAccount);
+            pstatement.setInt(2, contactAccount);
 
             try (ResultSet result = pstatement.executeQuery()) {
                 return result.next(); //returns true if contact exists

@@ -25,7 +25,6 @@ public class UserDAO {
                 else {
                     result.next();
                     User user = new User();
-                    user.setUserId(result.getInt("userId"));
                     user.setUsername(result.getString("username"));
                     user.setEmail(result.getString("email"));
                     user.setName(result.getString("name"));
@@ -39,7 +38,7 @@ public class UserDAO {
 
     public void registerUser(String username, String email, String password, String name, String surname) throws SQLException {
 
-        String registerQuery = "INSERT into user (userId, username, email, password, name, surname) VALUES(NULL, ?, ?, ?, ?, ?)";
+        String registerQuery = "INSERT into user (username, email, password, name, surname) VALUES(?, ?, ?, ?, ?)";
 
         try (PreparedStatement register = connection.prepareStatement(registerQuery)) {
             register.setString(1, username);

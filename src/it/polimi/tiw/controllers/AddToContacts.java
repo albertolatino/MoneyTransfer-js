@@ -56,16 +56,17 @@ public class AddToContacts extends HttpServlet {
             if (owner.equals(contactUsername)) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().println("You cannot register yourself");
-            } else if (contactDAO.existingContact(owner, contactUsername, contactAccount)) {
+            } else if (contactDAO.existingContact(owner, contactAccount)) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().println("This contact is already registered");
             } else {
-                contactDAO.registerContact(owner, contactUsername, contactAccount);
+                contactDAO.registerContact(owner, contactAccount);
                 response.getWriter().println("Contact successfully added");
                 response.setStatus(HttpServletResponse.SC_OK);
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().println("Internal server error, retry later");
         }
