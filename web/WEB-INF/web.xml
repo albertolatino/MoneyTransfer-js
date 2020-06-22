@@ -29,7 +29,7 @@
     </filter>
     <filter-mapping>
         <filter-name>NoCacher</filter-name>
-        <url-pattern>/HomeCS.html</url-pattern>
+        <url-pattern>/Home.html</url-pattern>
         <url-pattern>/RegisterUser</url-pattern>
     </filter-mapping>
     <filter-mapping>
@@ -39,7 +39,7 @@
         <url-pattern>/GetAccountDetailsData</url-pattern>
         <url-pattern>/GetAccountData</url-pattern>
         <url-pattern>/Logout</url-pattern>
-        <url-pattern>/HomeCS.html</url-pattern>
+        <url-pattern>/Home.html</url-pattern>
         <url-pattern>/AddToContacts</url-pattern>
     </filter-mapping>
     <welcome-file-list>

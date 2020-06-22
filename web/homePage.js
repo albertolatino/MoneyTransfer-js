@@ -219,6 +219,7 @@
                                 if (req.status === 200) {
                                     document.getElementById("addtocontacts").style.visibility = "visible";
                                     orchestrator.refresh(message); // id of the transaction origin account
+                                    self.alert.textContent = "Transaction executed successfully";
                                 } else {
                                     self.alert.textContent = message;
                                     self.reset();
