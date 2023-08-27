@@ -1,4 +1,4 @@
-# marketing-app - Data Bases 2 Project a.y. 2020/2021
+# marketing-app - Data Bases 2 Project
 The goal of the project is to implement a web app that deals with gamified consumer data collection.
 - User View: a user can access the homepage where the product of the day is published, and he can complete the related questionnaire. The application computes the gamification points of each user that can be checked in the leaderboard.
 - Admin View: an admin can access a reserved homepage where he is able to create a new questionnaire for the day of for a future date, inspect or delete a past questionnaire.
