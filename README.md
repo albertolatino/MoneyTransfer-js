@@ -21,7 +21,7 @@ The application has been realized in a JEE (Java Enterprise Edition) environment
 [Here](https://github.com/fulcus/marketing-app/raw/master/docs/specifications.pdf) you can find the complete specifications of the project.
 
 Below you can have a look at the ER Diagram of the project, all design choices are described in detail [here](https://github.com/fulcus/marketing-app/raw/master/docs/documentation.pdf).
-![picture](docs/images/ER.jpg)
+![picture](resources/ER.jpg)
 
 ## Authors
 [Luigi Fusco](https://github.com/luigifusco)
